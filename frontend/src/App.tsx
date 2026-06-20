@@ -8,7 +8,7 @@ import "./App.css";
 export default function App() {
   const [lang, setLang] = useState<Lang>("en");
   const [file, setFile] = useState<File | null>(null);
-  const [strokeType, setStrokeType] = useState("forehand");
+  const [strokeType, setStrokeType] = useState("serve");
   const [result, setResult] = useState<AnalysisResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -179,11 +179,46 @@ function ResultPanel({ result, lang }: { result: AnalysisResponse; lang: Lang })
       )}
 
       {annotated_video_url && (
-        <div className="video-section">
-          <h3>{tx.skeletonVideo}</h3>
-          <video controls src={annotated_video_url} className="annotated-video" />
-        </div>
+        <VideoPlayer url={annotated_video_url} label={tx.skeletonVideo} />
       )}
+    </div>
+  );
+}
+
+const SPEEDS = [0.25, 0.5, 0.75, 1.0];
+
+function VideoPlayer({ url, label }: { url: string; label: string }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [speed, setSpeed] = useState(0.5);
+
+  const setPlaybackRate = (s: number) => {
+    setSpeed(s);
+    if (videoRef.current) videoRef.current.playbackRate = s;
+  };
+
+  return (
+    <div className="video-section">
+      <div className="video-header">
+        <h3>{label}</h3>
+        <div className="speed-controls">
+          {SPEEDS.map((s) => (
+            <button
+              key={s}
+              className={`speed-btn ${speed === s ? "active" : ""}`}
+              onClick={() => setPlaybackRate(s)}
+            >
+              {s}x
+            </button>
+          ))}
+        </div>
+      </div>
+      <video
+        ref={videoRef}
+        controls
+        src={url}
+        className="annotated-video"
+        onPlay={() => { if (videoRef.current) videoRef.current.playbackRate = speed; }}
+      />
     </div>
   );
 }

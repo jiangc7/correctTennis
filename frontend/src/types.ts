@@ -26,10 +26,10 @@ export interface AnalysisResponse {
 }
 
 export const STROKE_TYPES = [
+  { value: "serve",    label: "发球 Serve" },
   { value: "forehand", label: "正手 Forehand" },
   { value: "backhand", label: "反手 Backhand" },
-  { value: "serve", label: "发球 Serve" },
-  { value: "volley", label: "截击 Volley" },
-  { value: "smash", label: "高压 Smash" },
-  { value: "slice", label: "切削 Slice" },
+  { value: "volley",   label: "截击 Volley" },
+  { value: "smash",    label: "高压 Smash" },
+  { value: "slice",    label: "切削 Slice" },
 ] as const;

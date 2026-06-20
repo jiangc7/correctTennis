@@ -112,5 +112,14 @@
 .tips ul { padding-left: 18px; display: grid; gap: 8px; }
 .tips li { color: #94a3b8; font-size: 0.88rem; line-height: 1.5; }
 
-.video-section h3 { color: #e2e8f0; font-size: 0.95rem; margin-bottom: 12px; }
+.video-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.video-section h3 { color: #e2e8f0; font-size: 0.95rem; }
+.speed-controls { display: flex; gap: 6px; }
+.speed-btn {
+  background: #0d1525; border: 1px solid var(--border);
+  color: #94a3b8; padding: 4px 10px; border-radius: 6px;
+  font-size: 0.8rem; cursor: pointer; transition: all 0.15s;
+}
+.speed-btn:hover { border-color: var(--accent); color: var(--accent); }
+.speed-btn.active { background: var(--accent); border-color: var(--accent); color: #000; font-weight: 600; }
 .annotated-video { width: 100%; border-radius: 10px; background: #000; }
