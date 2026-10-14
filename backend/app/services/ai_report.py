@@ -2,13 +2,17 @@ import os
 import anthropic
 import json
 
+from app.core.config import settings
+
 
 def generate_report(stroke_type: str, overall_score: int, dimensions: list[dict]) -> dict:
     """Call Claude API to generate bilingual coaching report. Falls back to rule-based if no API key."""
-    if not os.environ.get("ANTHROPIC_API_KEY"):
+    # Key from the environment, or from backend/.env (loaded by pydantic-settings)
+    api_key = os.environ.get("ANTHROPIC_API_KEY") or settings.anthropic_api_key
+    if not api_key or api_key == "your_key_here":
         return _fallback_report(overall_score, dimensions)
 
-    client = anthropic.Anthropic()
+    client = anthropic.Anthropic(api_key=api_key)
 
     dimension_text = "\n".join(
         f"- {d['name_en']} ({d['name_zh']}): {d['score']} pts ({d['status']}) — {d['feedback_en']}"
@@ -30,18 +34,21 @@ Output ONLY a JSON object with exactly these keys:
 
 No extra text, only JSON."""
 
-    message = client.messages.create(
-        model="claude-sonnet-4-6",
-        max_tokens=1500,
-        messages=[{"role": "user", "content": prompt}],
-    )
-
-    text = message.content[0].text.strip()
-    if text.startswith("```"):
-        text = text.split("```")[1]
-        if text.startswith("json"):
-            text = text[4:]
-    return json.loads(text.strip())
+    try:
+        message = client.messages.create(
+            model="claude-sonnet-4-6",
+            max_tokens=1500,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        text = message.content[0].text.strip()
+        if text.startswith("```"):
+            text = text.split("```")[1]
+            if text.startswith("json"):
+                text = text[4:]
+        return json.loads(text.strip())
+    except Exception as e:   # network/API/JSON problems must not fail the whole analysis
+        print(f"AI report failed, using rule-based fallback: {e}")
+        return _fallback_report(overall_score, dimensions)
 
 
 def _fallback_report(overall_score: int, dimensions: list[dict]) -> dict:

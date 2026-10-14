@@ -1,0 +1,39 @@
+# Usage on a server (e.g. Hetzner CX23):
+#   1. put the reference serve at backend/assets/reference/serve.mov
+#   2. optional: backend/.env with ANTHROPIC_API_KEY=...
+#   3. docker compose up -d --build                       # app only, on 127.0.0.1:8001
+#      TUNNEL_TOKEN=... docker compose --profile tunnel up -d --build   # + Cloudflare Tunnel
+services:
+  app:
+    build: .
+    image: tennisvision:latest
+    restart: unless-stopped
+    env_file:
+      - path: backend/.env
+        required: false
+    environment:
+      DATA_DIR: /data
+      MAX_UPLOAD_MB: "100"
+      RETENTION_DAYS: "7"
+      MAX_CONCURRENT_JOBS: "1"
+    volumes:
+      - tv-data:/data
+      - ./backend/assets/reference:/app/backend/assets/reference:ro
+    # Only reachable from the server itself; the public entry point is Cloudflare
+    ports:
+      - "127.0.0.1:8001:8001"
+
+  # Cloudflare Tunnel: create a tunnel in the Cloudflare Zero Trust dashboard, set its
+  # public hostname's service to  http://app:8001 , and pass the tunnel token in TUNNEL_TOKEN.
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    profiles: ["tunnel"]
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${TUNNEL_TOKEN:?set TUNNEL_TOKEN}
+    depends_on:
+      - app
+
+volumes:
+  tv-data:

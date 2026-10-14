@@ -1,0 +1,15 @@
+.git
+.claude
+**/node_modules
+**/__pycache__
+**/*.pyc
+frontend/dist
+backend/uploads
+backend/outputs
+backend/references
+backend/assets/reference/*.mov
+backend/assets/reference/*.mp4
+backend/.env
+backend/pip_log.txt
+data
+*.bat

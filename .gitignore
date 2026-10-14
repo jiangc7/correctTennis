@@ -1,0 +1,20 @@
+# dependencies & builds
+node_modules/
+frontend/dist/
+__pycache__/
+*.pyc
+
+# secrets
+backend/.env
+
+# user videos & generated media (may contain minors — never commit)
+backend/uploads/
+backend/outputs/
+backend/references/
+data/
+
+# reference footage may not be redistributable
+backend/assets/reference/*
+!backend/assets/reference/README.md
+
+backend/pip_log.txt
